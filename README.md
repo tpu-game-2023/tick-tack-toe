@@ -16,9 +16,19 @@
 * 可能であれば、速度等を計測して、具体的な効率化度合い、強さを示してください。
 * 納得できるところまでできたところでプルリクを出してください。
 
-[![MSBuild](https://github.com/tpu-game-2023/tick-tack-toe/actions/workflows/msbuild.yml/badge.svg)](https://github.com/tpu-game-2023/tick-tack-toe/actions/workflows/msbuild.yml)
+[![MSBuild](https://github.com/GTM106/tick-tack-toe/actions/workflows/msbuild.yml/badge.svg)](https://github.com/GTM106/tick-tack-toe/actions/workflows/msbuild.yml)
 
 （↑のソースコードの「tpu-game-2023」を自分のアカウント名に差し替えてください（２か所））
 
 # 〆切
 5/21(日)
+
+# 工夫点
+- AIを、既存のORDEREDに加えてAlphaBetaとNegaMaxを追加しました。それらをプレイヤーが選択できるように変更しました。
+- コーディングにおいては、参考にした授業資料に記載されていたヨーダ記法をやめました。また、無限ループの記述に `for(;;)` と `while(1)`があったため、`while(true)`に統一しました。
+- 資料で記載されていたNegaMaxでは、守備優先になっていて弱かったため一部を修正しました。
+
+# 速度について
+三目並べにおいては問題なく高速に動作します。五目並べにすると序盤の計算量が多すぎてまともに動きません。
+改善するなら序・中盤において一定の深さまで潜ったらそこで打ち止めするなどの工夫が必要です。
+今回は三目並べの効率化を目標にしていたためそこまでは実装していません。
