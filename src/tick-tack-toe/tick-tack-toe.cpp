@@ -1,7 +1,6 @@
 ﻿#include <memory>
 #include <iostream>
 
-
 class Mass
 {
 public:
@@ -90,7 +89,7 @@ class Board
 public:
 	enum WINNER
 	{
-		NOT_FINISED = 0,
+		NOT_FINISHED = 0,
 		PLAYER,
 		ENEMY,
 		DRAW,
@@ -105,7 +104,6 @@ private:
 public:
 	Board()
 	{
-		//		mass_[0][0].setStatus(Mass::ENEMY); mass_[0][1].setStatus(Mass::PLAYER); 
 	}
 	Board::WINNER calc_result() const
 	{
@@ -165,7 +163,7 @@ public:
 			for (int x = 0; x < BOARD_SIZE; x++)
 			{
 				Mass::status fill = mass_[y][x].getStatus();
-				if (fill == Mass::BLANK) return NOT_FINISED;
+				if (fill == Mass::BLANK) return NOT_FINISHED;
 			}
 		}
 		return DRAW;
@@ -296,7 +294,7 @@ private:
 	const AI::type ai_type = AI::TYPE_ALPHABETA;
 
 	Board board_;
-	Board::WINNER winner_ = Board::NOT_FINISED;
+	Board::WINNER winner_ = Board::NOT_FINISHED;
 	AI* pAI_ = nullptr;
 
 public:
@@ -324,7 +322,7 @@ public:
 		return success;
 	}
 
-	Board::WINNER is_finised()
+	Board::WINNER is_finished()
 	{
 		return winner_;
 	}
@@ -363,27 +361,27 @@ void show_end_message(Board::WINNER winner)
 
 int main()
 {
-	for (;;)
-	{// 無限ループ
+	while (true)
+	{
 		show_start_message();
 
 		// initialize
 		unsigned int turn = 0;
 		std::shared_ptr<Game> game(new Game());
 
-		while (1)
+		while (true)
 		{
 			game->show();// 盤面表示
 
 			// 勝利判定
-			Board::WINNER winner = game->is_finised();
+			Board::WINNER winner = game->is_finished();
 			if (winner)
 			{
 				show_end_message(winner);
 				break;
 			}
 
-			if (0 == turn)
+			if (turn == 0)
 			{
 				// user input
 				char col[1], row[1];
