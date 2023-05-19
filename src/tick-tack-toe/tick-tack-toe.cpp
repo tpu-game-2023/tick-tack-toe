@@ -1,5 +1,6 @@
 ﻿#include <memory>
 #include <iostream>
+#include <string>
 
 class Mass
 {
@@ -39,6 +40,9 @@ public:
 	{
 		TYPE_ORDERED = 0,
 		TYPE_ALPHABETA = 1,
+		TYPE_NEGAMAX = 2,
+
+		INVALID,
 	};
 
 	static AI* createAi(type type);
@@ -66,6 +70,18 @@ public:
 	bool think(Board& b);
 };
 
+class AI_nega_max : public AI
+{
+private:
+	int evaluate(Board& b, Mass::status current, int& best_x, int& best_y);
+
+public:
+	AI_nega_max() {}
+	~AI_nega_max() {}
+
+	bool think(Board& b);
+};
+
 AI* AI::createAi(type type)
 {
 	switch (type)
@@ -74,17 +90,20 @@ AI* AI::createAi(type type)
 		return new AI_ordered();
 	case TYPE_ALPHABETA:
 		return new AI_alpha_beta();
+	case TYPE_NEGAMAX:
+		return new AI_nega_max();
 	default:
-		return new AI_ordered();
+		//その他はエラーを起こしたいためnullptrを返す
+		std::cout << "[ERROR]登録されていないTYPEが選択されました。" << std::endl;
+		return nullptr;
 	}
-
-	return nullptr;
 }
 
 class Board
 {
 	friend class AI_ordered;
 	friend class AI_alpha_beta;
+	friend class AI_nega_max;
 
 public:
 	enum WINNER
@@ -288,19 +307,68 @@ bool AI_alpha_beta::think(Board& b)
 	return b.mass_[best_y][best_x].put(Mass::ENEMY);
 }
 
+int AI_nega_max::evaluate(Board& b, Mass::status current, int& best_x, int& best_y)
+{
+	Mass::status next = (current == Mass::ENEMY) ? Mass::PLAYER : Mass::ENEMY;
+
+	//死活判定
+	int r = b.calc_result();
+	if (r == current)return 10000;//呼び出し側の勝ち
+	if (r == next)return -10000;//呼び出し側の負け
+	if (r == Board::DRAW)return 0;//引き分け
+
+	int score_max = -9999; //打たないのは最悪
+
+	for (int y = 0; y < Board::BOARD_SIZE; y++)
+	{
+		for (int x = 0; x < Board::BOARD_SIZE; x++)
+		{
+			Mass& m = b.mass_[y][x];
+			if (m.getStatus() != Mass::BLANK)continue;
+
+			m.setStatus(current);
+			int dummy;
+			int score = -evaluate(b, next, dummy, dummy);
+			m.setStatus(Mass::BLANK);
+
+			if (score_max < score)
+			{
+				score_max = score;
+				best_x = x;
+				best_y = y;
+			}
+		}
+	}
+
+	return score_max;
+}
+
+bool AI_nega_max::think(Board& b)
+{
+	int best_x = -1, best_y;
+
+	evaluate(b, Mass::ENEMY, best_x, best_y);
+
+	//打てる手はなかった
+	if (best_x < 0)return false;
+
+	return b.mass_[best_y][best_x].put(Mass::ENEMY);
+}
+
 class Game
 {
 private:
-	const AI::type ai_type = AI::TYPE_ALPHABETA;
+	AI::type ai_type;
 
 	Board board_;
 	Board::WINNER winner_ = Board::NOT_FINISHED;
 	AI* pAI_ = nullptr;
 
 public:
-	Game()
+	Game(AI::type type)
 	{
-		pAI_ = AI::createAi(ai_type);
+		ai_type = type;
+		pAI_ = AI::createAi(type);
 	}
 	~Game()
 	{
@@ -331,12 +399,31 @@ public:
 	{
 		board_.show();
 	}
+
+	std::string get_ai_type_message()
+	{
+		switch (ai_type)
+		{
+		case AI::TYPE_ORDERED:
+			return "ORDERED";
+		case AI::TYPE_ALPHABETA:
+			return "ALPHA_BETA";
+		case AI::TYPE_NEGAMAX:
+			return "NEGA_MAX";
+		default:
+			break;
+		}
+
+		return "";
+	}
 };
 
-void show_start_message()
+void show_start_message(std::string ai_type)
 {
 	std::cout << "========================" << std::endl;
 	std::cout << "       GAME START       " << std::endl;
+	std::cout << std::endl;
+	std::cout << "AI TYPE : " << ai_type << std::endl;
 	std::cout << std::endl;
 	std::cout << "input position likes 1 a" << std::endl;
 	std::cout << "========================" << std::endl;
@@ -359,15 +446,45 @@ void show_end_message(Board::WINNER winner)
 	std::cout << std::endl;
 }
 
+void show_type_select_message()
+{
+	std::cout << "対戦したい <<AI TYPE>> を選択してください。" << std::endl;
+	std::cout << "1 → ORDERED" << std::endl;
+	std::cout << "2 → ALPHA_BETA" << std::endl;
+	std::cout << "3 → NEGA_MAX" << std::endl;
+
+	std::cout << std::endl;
+}
+
+AI::type ai_type_setting()
+{
+	int type;
+	AI::type ai_type;
+	do
+	{
+		std::cout << ">";
+		std::cin >> type;
+		ai_type = static_cast<AI::type>(--type);
+	} while (ai_type < AI::TYPE_ORDERED || ai_type >= AI::INVALID);
+
+	return ai_type;
+}
+
 int main()
 {
 	while (true)
 	{
-		show_start_message();
+		//AITYPEの設定
+		show_type_select_message();
 
-		// initialize
+		AI::type ai_type = ai_type_setting();
+
+		//ゲームインスタンスを生成
+		std::shared_ptr<Game> game(new Game(ai_type));
+
+		show_start_message(game->get_ai_type_message());
+
 		unsigned int turn = 0;
-		std::shared_ptr<Game> game(new Game());
 
 		while (true)
 		{
