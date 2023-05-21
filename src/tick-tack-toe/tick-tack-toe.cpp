@@ -219,7 +219,7 @@ bool AI_alpha_beta::think(Board& b)
 	if (evaluate(-10000, 10000, b, Mass::ENEMY, best_x, best_y) <= -9999)
 		return false; //打てる手はなかった
 
-	return b.mass_[best_x][best_y].put(Mass::ENEMY);
+	return b.mass_[best_y][best_x].put(Mass::ENEMY);
 }
 
 int AI_alpha_beta::evaluate(int alpha, int beta, Board& b, Mass::status current, int& best_x, int& best_y)
