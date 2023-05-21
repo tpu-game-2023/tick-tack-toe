@@ -1,3 +1,7 @@
+# 工夫した点
+三目並べの定石として、中央のマスは絶対に獲得したいので
+初手で中央のマスが開いているならそこに石を置くようにしました。
+
 # 課題：強くして
 本リポジトリのAIに対して、何らかの工夫をしてください！
 
@@ -16,7 +20,7 @@
 * 可能であれば、速度等を計測して、具体的な効率化度合い、強さを示してください。
 * 納得できるところまでできたところでプルリクを出してください。
 
-[![MSBuild](https://github.com/tpu-game-2023/tick-tack-toe/actions/workflows/msbuild.yml/badge.svg)](https://github.com/tpu-game-2023/tick-tack-toe/actions/workflows/msbuild.yml)
+[![MSBuild](https://github.com/Nanachi9999/tick-tack-toe/actions/workflows/msbuild.yml/badge.svg)](https://github.com/Nanachi9999/tick-tack-toe/actions/workflows/msbuild.yml)
 
 （↑のソースコードの「tpu-game-2023」を自分のアカウント名に差し替えてください（２か所））
 
