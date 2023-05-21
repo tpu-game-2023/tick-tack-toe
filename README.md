@@ -16,9 +16,14 @@
 * 可能であれば、速度等を計測して、具体的な効率化度合い、強さを示してください。
 * 納得できるところまでできたところでプルリクを出してください。
 
-[![MSBuild](https://github.com/tpu-game-2023/tick-tack-toe/actions/workflows/msbuild.yml/badge.svg)](https://github.com/tpu-game-2023/tick-tack-toe/actions/workflows/msbuild.yml)
+[![MSBuild](https://github.com/Iketerumanato/tick-tack-toe/actions/workflows/msbuild.yml/badge.svg)](https://github.com/Iketerumanato/tick-tack-toe/actions/workflows/msbuild.yml)
 
 （↑のソースコードの「tpu-game-2023」を自分のアカウント名に差し替えてください（２か所））
 
 # 〆切
 5/21(日)
+
+#2227401 池照真人
+nega-max法,alpha-beta法の実装
+表記の追加(aiの番の時)
+バッチのソースコードの名前をアカウント名に差し替え
