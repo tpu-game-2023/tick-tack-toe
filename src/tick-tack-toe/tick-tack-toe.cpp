@@ -52,6 +52,7 @@ public:
 //アルファベータ法
 class AI_alpha_beta : public AI {
 private:
+	bool isFirstTurn = true;
 	//手の評価を行う
 	int evaluate(int alpha, int beta, Board& b, Mass::status current, int& best_x, int& best_y);
 public:
@@ -215,6 +216,13 @@ bool AI_ordered::think(Board& b)
 bool AI_alpha_beta::think(Board& b)
 {
 	int best_x, best_y;
+
+	//初手で中央を取れるなら必ず取る
+	if (isFirstTurn && (b.mass_[1][1].getStatus() == Mass::BLANK))
+	{
+		isFirstTurn = false;
+		return b.mass_[1][1].put(Mass::ENEMY);
+	}
 
 	if (evaluate(-10000, 10000, b, Mass::ENEMY, best_x, best_y) <= -9999)
 		return false; //打てる手はなかった
