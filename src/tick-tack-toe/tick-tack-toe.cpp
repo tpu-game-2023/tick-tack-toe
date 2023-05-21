@@ -41,11 +41,14 @@ public:
 
 // 順番に打ってみる
 class AI_ordered : public AI {
+private:
+	
 public:
 	AI_ordered() {}
 	~AI_ordered() {}
 
 	bool think(Board& b);
+	int evaluate(int alpha, int beta, Board& b, Mass::status current, int& best_x, int& best_y);
 };
 
 AI* AI::createAi(type type)
@@ -71,13 +74,12 @@ public:
 		ENEMY,
 		DRAW,
 	};
-private:
 	enum {
 		BOARD_SIZE = 3,
 	};
-	Mass mass_[BOARD_SIZE][BOARD_SIZE];
 
 public:
+	Mass mass_[BOARD_SIZE][BOARD_SIZE];
 	Board() {
 		//		mass_[0][0].setStatus(Mass::ENEMY); mass_[0][1].setStatus(Mass::PLAYER); 
 	}
@@ -183,16 +185,46 @@ public:
 
 bool AI_ordered::think(Board& b)
 {
+	int best_x, best_y;
+	if (evaluate(-10000, 10000, b, Mass::ENEMY, best_x, best_y) <= -9999)
+		return false; //打てる手はなかった。
+	return b.mass_[best_y][best_x].put(Mass::ENEMY);
+}
+
+int AI_ordered::evaluate(int alpha, int beta, Board& b, Mass::status current, int& best_x, int& best_y)
+{
+	Mass::status next = (current == Mass::ENEMY) ? Mass::PLAYER : Mass::ENEMY;
+	//死活判定	
+	int r = b.calc_result();
+	if (r == current) return +10000; //呼び出した側の勝ち
+	if (r == next) return -10000;    //呼び出した側の負け
+	if (r == Board::DRAW) return 0;  //引き分け
+
+	int score_max = -9999;  //打たないで投了
+
 	for (int y = 0; y < Board::BOARD_SIZE; y++) {
 		for (int x = 0; x < Board::BOARD_SIZE; x++) {
-			if (b.mass_[y][x].put(Mass::ENEMY)) {
-				return true;
+			Mass& m = b.mass_[y][x];
+			if (m.getStatus() != Mass::BLANK) continue;
+
+			m.setStatus(current);  //次の手を打つ
+			int dumy;
+			int score = -evaluate(-beta, -alpha, b, next, dumy, dumy);
+			m.setStatus(Mass::BLANK);  //手を戻す
+
+			if (beta < score) {
+				return (score_max < score) ? score : score_max;  //最悪の値より悪い
+			}
+			if (score_max < score) {
+				score_max = score;
+				alpha = (alpha < score_max) ? score_max : alpha;  //α値を更新
+				best_x = x;
+				best_y = y;
 			}
 		}
 	}
-	return false;
+	return score_max;
 }
-
 
 
 class Game
@@ -284,8 +316,9 @@ int main()
 				// user input
 				char col[1], row[1];
 				do {
-					std::cout << "? ";
-					std::cin >> row >> col;
+					std::cout << "縦列の番号： ";  std::cin >> row;  std::cout << '\n';
+					std::cout << "横列の英字： ";  std::cin >> col;  std::cout << '\n';
+
 				} while (!game->put(row[0] - '1', col[0] - 'a'));
 			}
 			else {
