@@ -320,8 +320,8 @@ class Game
 {
 private:
 	//aiの思考切り替え
-	//const AI::type ai_type = AI::TYPE_ORDERED;
-	//const AI::type ai_type = AI::TYPE_NEGA_MAX;
+	/*const AI::type ai_type = AI::TYPE_ORDERED;
+	const AI::type ai_type = AI::TYPE_NEGA_MAX;*/
 	const AI::type ai_type = AI::TYPE_ALPHA_BETA;
 
 	Board board_;
@@ -405,12 +405,13 @@ int main()
 				// user input
 				char col[1], row[1];
 				do {
-					std::cout << "? ";
+					std::cout << "Where? ";
 					std::cin >> row >> col;
 				} while (!game->put(row[0] - '1', col[0] - 'a'));
 			}
 			else {
 				// AI
+				std::cout << "AI Trun";
 				if (!game->think()) {
 					show_end_message(Board::WINNER::PLAYER);// 投了
 				}
